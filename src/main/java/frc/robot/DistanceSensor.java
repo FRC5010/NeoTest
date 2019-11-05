@@ -5,42 +5,45 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DistanceSensor extends Subsystem {
 	
-	public static double rightDPP = 0.5 * Math.PI / 252;
-	// Uses 120 pulses per rotation from k1X 	
+	public static double effectiveWheelSize = 0.5155;
+	public static double DPP = 1;
+	public static double velConvFactor = 1;
+	public static double gearRatio = 6.0;
+	// Uses CPR output to RioLog 	
 	
 	public DistanceSensor() {
-
-		Robot.leftEncoder.setPosition(0);
-		Robot.rightEncoder.setPosition(0);
-		
-		Robot.leftEncoder.setPositionConversionFactor(rightDPP);
-		Robot.rightEncoder.setPositionConversionFactor(rightDPP);
-		
-		//Robot.rightEncoder.setInverted(true);		
+		DPP = effectiveWheelSize * Math.PI / ((double)Robot.leftEncoder.getCPR() * gearRatio);
+		SmartDashboard.putNumber("DPP", DPP);
+		velConvFactor = DPP / 60.0;
+		reset();		
 	}
 
 	public DistanceSensor(String name) {
 		super(name);
 	}
 	public double getLeftDistance() {
-		SmartDashboard.putNumber("left Distance",Robot.leftEncoder.getPosition());
-		return Robot.leftEncoder.getPosition();
+		double distance = Robot.leftEncoder.getPosition() * DPP;
+		SmartDashboard.putNumber("left Distance", distance);
+		return distance;
 	}
 
 	public double getRightDistance() {
 		//set inverted not working rightside needs to be inverted negated for now
-		SmartDashboard.putNumber("right Distance", -Robot.rightEncoder.getPosition());
-		return Robot.rightEncoder.getPosition();
+		double distance = -Robot.rightEncoder.getPosition() * DPP;
+		SmartDashboard.putNumber("right Distance", distance);
+		return distance;
 	}
 	
 	public double getRightRate() {
-		SmartDashboard.putNumber("right encoder getRate", Robot.rightEncoder.getVelocity());
-		return Robot.rightEncoder.getVelocity();
+		double velocity = -Robot.rightEncoder.getVelocity() * velConvFactor;
+		SmartDashboard.putNumber("right encoder getRate", velocity);
+		return velocity;
 	}
 
 	public double getLeftRate() {
-		SmartDashboard.putNumber("left encoder getRate", Robot.leftEncoder.getVelocity());
-		return Robot.leftEncoder.getVelocity();
+		double velocity = -Robot.leftEncoder.getVelocity() * velConvFactor;
+		SmartDashboard.putNumber("left encoder getRate", velocity);
+		return velocity;
 	}
 
 	public void reset() {

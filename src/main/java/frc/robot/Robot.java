@@ -7,14 +7,12 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
@@ -40,7 +38,6 @@ public class Robot extends TimedRobot{
   public static Gyro gyro;
   public static Joystick joy;
   private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
   Command m_autonomousCommand;
   SendableChooser<Command> m_chooser = new SendableChooser<>();
   public static long timer = 0;
@@ -52,7 +49,7 @@ public class Robot extends TimedRobot{
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", new CycleSprintTest());
+    m_chooser.setDefaultOption(kDefaultAuto, new CycleSprintTest());
     SmartDashboard.putData("Auto choices", m_chooser);
     //only use brushless mode with can spark max, bad if not 
     //left
@@ -67,8 +64,6 @@ public class Robot extends TimedRobot{
     System.out.println("Left CPR: " + rightEncoder.getCPR());
 
     d2.follow(d1);
-    d1.setInverted(true);
-    d2.setInverted(true);
     d4.follow(d3);
     joy = new Joystick(0);
     gyro = new AnalogGyro(0);

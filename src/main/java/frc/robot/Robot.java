@@ -42,6 +42,7 @@ public class Robot extends TimedRobot{
   SendableChooser<Command> m_chooser = new SendableChooser<>();
   public static long timer = 0;
   public static DistanceSensor distance;
+  public static boolean running = false;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -126,6 +127,7 @@ public class Robot extends TimedRobot{
    */
   @Override
   public void autonomousPeriodic() {
+    running = true;
     if (joy.getRawAxis(1) != 0 || joy.getRawAxis(4) != 0) {
       m_autonomousCommand.cancel();
     }
@@ -137,6 +139,7 @@ public class Robot extends TimedRobot{
    */
   @Override
   public void teleopPeriodic() {
+    running = true;
     drive(joy.getRawAxis(1),joy.getRawAxis(4));
   }
 

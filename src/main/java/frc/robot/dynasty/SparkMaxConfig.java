@@ -7,18 +7,23 @@
 
 package frc.robot.dynasty;
 
+import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import frc.robot.Robot;
 
+/*
  * Add your docs here.
  */
 public class SparkMaxConfig {
     public int ampLimit = 40;
     public int numSpark = 4;
     public double rampRate;
+    public static CANPIDController lPidController, rPidController;
     public static CANSparkMax leftDt1,leftDt2,leftDt3,rightDt1,rightDt2,rightDt3;
+    public static boolean pidInit = false;
 
     
         public SparkMaxConfig(int[] sparkId,boolean leftInvert){
@@ -71,6 +76,20 @@ public class SparkMaxConfig {
             leftDt2.follow(leftDt1);
             rightDt2.follow(rightDt1);
             
+            
+
+            lPidController = leftDt1.getPIDController();
+            rPidController = rightDt1.getPIDController();
+            
+
+           }else{
+               System.out.println("no that isnt a valid number of motors");
+           }
+           initPID(lPidController, new Gains(5,0,0,0,0));
+           initPID(lPidController, new Gains(5,0,0,0,0));
+           pidInit = true;
+        }
+        public static void dtLimits(){
             leftDt1.setSmartCurrentLimit(20, 20);
             leftDt1.setOpenLoopRampRate(.8);
 
@@ -82,10 +101,19 @@ public class SparkMaxConfig {
 
             rightDt2.setSmartCurrentLimit(20, 20);
             rightDt2.setOpenLoopRampRate(.8);
-            
-
-           }else{
-               System.out.println("no that isnt a valid number of motors");
-           }
+        }
+        public static void initPID(CANPIDController controler, Gains gains) {
+            controler.setP(gains.kP);
+            controler.setI(0);
+            controler.setFF(gains.kV);
+        }
+        public static void velDrive(double fPow, double tPow, int maxVel) {
+            //max vel in motor rpm 5700 max
+            if(pidInit){
+            lPidController.setReference((fPow+tPow)*maxVel, ControlType.kVelocity);
+            rPidController.setReference((fPow-tPow)*maxVel, ControlType.kVelocity);
+            }else{
+                System.out.println("you never initilized yout pid values");
+            }
         }
 }

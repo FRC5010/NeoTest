@@ -9,9 +9,10 @@ package frc.robot.dynasty;
 
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.ControlType;
 
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import frc.robot.Robot;
 
 /*
@@ -109,11 +110,38 @@ public class SparkMaxConfig {
         }
         public static void velDrive(double fPow, double tPow, int maxVel) {
             //max vel in motor rpm 5700 max
+            maxVel = 5700;
+            fPow = applyDeadband(fPow,.1);
+            tPow=applyDeadband(tPow, .1);
             if(pidInit){
-            lPidController.setReference((fPow+tPow)*maxVel, ControlType.kVelocity);
-            rPidController.setReference((fPow-tPow)*maxVel, ControlType.kVelocity);
+            lPidController.setReference((limit(fPow+tPow))*maxVel, ControlType.kVelocity);
+            rPidController.setReference((limit(fPow-tPow))*maxVel, ControlType.kVelocity);
             }else{
                 System.out.println("you never initilized yout pid values");
             }
         }
+
+        public static void curvDrive(double fPow,double tPow, boolean isQuickTurn){
+            //coming soon
+        }
+        public static double limit(double val){
+            if(val>1.0){
+                return 1.0;
+            }else if(val < -1.0){
+                return -1.0;
+            }else{
+                return val;
+            }
+        }
+        public static double applyDeadband(double value, double deadband) {
+            if (Math.abs(value) > deadband) {
+              if (value > 0.0) {
+                return (value - deadband) / (1.0 - deadband);
+              } else {
+                return (value + deadband) / (1.0 - deadband);
+              }
+            } else {
+              return 0.0;
+            }
+          }
 }

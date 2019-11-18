@@ -10,7 +10,6 @@ package frc.robot;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Joystick;
@@ -21,6 +20,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.dynasty.SparkMaxConfig;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -46,6 +46,9 @@ public class Robot extends TimedRobot{
   SendableChooser<Command> m_chooser = new SendableChooser<>();
   public static long timer = 0;
   public static DistanceSensor distance;
+  public static boolean running = false;
+  public static SparkMaxConfig sparks;
+  public static int[] sparkArr={1,2,3,4};;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -53,30 +56,23 @@ public class Robot extends TimedRobot{
    */
   @Override
   public void robotInit() {
-     pdp = new PowerDistributionPanel();
-    int currentLimit = 5;
-    m_chooser.setDefaultOption(kDefaultAuto, new CycleSprintTest());
-    SmartDashboard.putData("Auto choices", m_chooser);
-    //only use brushless mode with can spark max, bad if not 
-    //left
-    d1 = new CANSparkMax(1,MotorType.kBrushless);
-    d2 = new CANSparkMax(2,MotorType.kBrushless);
-    leftEncoder = d1.getEncoder();
-    System.out.println("Left CPR: " + leftEncoder.getCPR());
-    //right
-    d3 = new CANSparkMax(3,MotorType.kBrushless);
-    d4 = new CANSparkMax(4,MotorType.kBrushless);
-    d3.setInverted(true);
-    d4.setInverted(true);
-    rightEncoder = d3.getEncoder();
-    System.out.println("Left CPR: " + rightEncoder.getCPR());
-
-    d2.follow(d1);
-    d4.follow(d3);
-    d1.setSmartCurrentLimit(currentLimit);
-    d2.setSmartCurrentLimit(currentLimit);
-    d3.setSmartCurrentLimit(currentLimit);
-    d4.setSmartCurrentLimit(currentLimit);
+     m_chooser.setDefaultOption(kDefaultAuto, new CycleSprintTest());
+     SmartDashboard.putData("Auto choices", m_chooser);
+      
+    // //only use brushless mode with can spark max, bad if not 
+    // //left
+    // d1 = new CANSparkMax(1,MotorType.kBrushless);
+    // d2 = new CANSparkMax(2,MotorType.kBrushless);
+    // leftEncoder = d1.getEncoder();
+    // System.out.println("Left CPR: " + leftEncoder.getCPR());
+    // //right
+    // d3 = new CANSparkMax(3,MotorType.kBrushless);
+    // d4 = new CANSparkMax(4,MotorType.kBrushless);
+    // rightEncoder = d3.getEncoder();
+    // System.out.println("Left CPR: " + rightEncoder.getCPR());
+    sparks = new SparkMaxConfig(sparkArr,false);
+    // d2.follow(d1);
+    // d4.follow(d3);
     joy = new Joystick(0);
     fwd = new JoystickAxis(joy, 1, true, 1);
     trn = new JoystickAxis(joy, 4, .55);
@@ -144,6 +140,7 @@ public class Robot extends TimedRobot{
    */
   @Override
   public void autonomousPeriodic() {
+    running = true;
     if (joy.getRawAxis(1) != 0 || joy.getRawAxis(4) != 0) {
       m_autonomousCommand.cancel();
     }
@@ -155,8 +152,9 @@ public class Robot extends TimedRobot{
    */
   @Override
   public void teleopPeriodic() {
-    
-    drive(fwd.getValue(), trn.getValue());
+    running = true;
+   // drive(joy.getRawAxis(1),joy.getRawAxis(4));
+   sparks.velDrive(joy.getRawAxis(1), joy.getRawAxis(4), 5700);
   }
 
   /**

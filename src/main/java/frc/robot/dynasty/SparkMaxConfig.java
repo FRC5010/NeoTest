@@ -12,7 +12,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ControlType;
 
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import frc.robot.Robot;
 
 /*
@@ -86,10 +85,12 @@ public class SparkMaxConfig {
            }else{
                System.out.println("no that isnt a valid number of motors");
            }
-           initPID(lPidController, new Gains(5,0,0,0,0));
-           initPID(lPidController, new Gains(5,0,0,0,0));
+           initPID(lPidController, new Gains(.00001,0,0,0,0));
+           initPID(lPidController, new Gains(.00001,0,0,0,0));
            pidInit = true;
         }
+
+
         public static void dtLimits(){
             leftDt1.setSmartCurrentLimit(20, 20);
             leftDt1.setOpenLoopRampRate(.8);
@@ -103,12 +104,17 @@ public class SparkMaxConfig {
             rightDt2.setSmartCurrentLimit(20, 20);
             rightDt2.setOpenLoopRampRate(.8);
         }
+
+
+
         public static void initPID(CANPIDController controler, Gains gains) {
             controler.setP(gains.kP);
             controler.setI(0);
             controler.setFF(gains.kV);
         }
-        public static void velDrive(double fPow, double tPow, int maxVel) {
+
+
+        public void velDrive(double fPow, double tPow, int maxVel) {
             //max vel in motor rpm 5700 max
             maxVel = 5700;
             fPow = applyDeadband(fPow,.1);
@@ -123,7 +129,10 @@ public class SparkMaxConfig {
 
         public static void curvDrive(double fPow,double tPow, boolean isQuickTurn){
             //coming soon
+            
         }
+
+
         public static double limit(double val){
             if(val>1.0){
                 return 1.0;

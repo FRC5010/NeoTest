@@ -14,6 +14,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -36,7 +37,10 @@ public class Robot extends TimedRobot{
   public static CANEncoder leftEncoder;
   public static CANEncoder rightEncoder;
   public static Gyro gyro;
+  public static PowerDistributionPanel pdp;
   public static Joystick joy;
+  public static JoystickAxis fwd;
+  public static JoystickAxis trn;
   private static final String kDefaultAuto = "Default";
   Command m_autonomousCommand;
   SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -49,6 +53,8 @@ public class Robot extends TimedRobot{
    */
   @Override
   public void robotInit() {
+     pdp = new PowerDistributionPanel();
+    int currentLimit = 5;
     m_chooser.setDefaultOption(kDefaultAuto, new CycleSprintTest());
     SmartDashboard.putData("Auto choices", m_chooser);
     //only use brushless mode with can spark max, bad if not 
@@ -60,18 +66,29 @@ public class Robot extends TimedRobot{
     //right
     d3 = new CANSparkMax(3,MotorType.kBrushless);
     d4 = new CANSparkMax(4,MotorType.kBrushless);
+    d3.setInverted(true);
+    d4.setInverted(true);
     rightEncoder = d3.getEncoder();
     System.out.println("Left CPR: " + rightEncoder.getCPR());
 
     d2.follow(d1);
     d4.follow(d3);
+    d1.setSmartCurrentLimit(currentLimit);
+    d2.setSmartCurrentLimit(currentLimit);
+    d3.setSmartCurrentLimit(currentLimit);
+    d4.setSmartCurrentLimit(currentLimit);
     joy = new Joystick(0);
+    fwd = new JoystickAxis(joy, 1, true, 1);
+    trn = new JoystickAxis(joy, 4, .55);
+
     gyro = new AnalogGyro(0);
     gyro.reset();
     distance = new DistanceSensor();
     distance.reset();
   }
   public static void drive(double forward, double turn){
+    double angleP = gyro.getAngle() * .01;
+    
     d1.set(forward+turn);
     d3.set(forward-turn);
   }
@@ -90,6 +107,7 @@ public class Robot extends TimedRobot{
     distance.getLeftRate();
     distance.getRightDistance();
     distance.getRightRate();
+    SmartDashboard.putNumber("PDP current", pdp.getTotalCurrent());
     SmartDashboard.putNumber("Heading", gyro.getAngle());
   }
 
@@ -137,7 +155,8 @@ public class Robot extends TimedRobot{
    */
   @Override
   public void teleopPeriodic() {
-    drive(joy.getRawAxis(1),joy.getRawAxis(4));
+    
+    drive(fwd.getValue(), trn.getValue());
   }
 
   /**

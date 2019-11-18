@@ -8,7 +8,7 @@ public class DistanceSensor extends Subsystem {
 	public static double effectiveWheelSize = 0.5155;
 	public static double DPP = 1;
 	public static double velConvFactor = 1;
-	public static double gearRatio = 6.0;
+	public static double gearRatio = 16.37;
 	// Uses CPR output to RioLog 	
 	
 	public DistanceSensor() {

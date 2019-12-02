@@ -10,11 +10,15 @@ package frc.robot;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -30,10 +34,16 @@ import frc.robot.dynasty.SparkMaxConfig;
  * project.
  */
 public class Robot extends TimedRobot{
-  public static CANSparkMax d1;
-  public static CANSparkMax d2;
-  public static CANSparkMax d3;
-  public static CANSparkMax d4;
+  // public static CANSparkMax d1;
+  // public static CANSparkMax d2;
+  // public static CANSparkMax d3;
+  // public static CANSparkMax d4;
+  public static Talon d1 = new Talon(0);
+  public static Victor d2 = new Victor(1);
+  public static Talon d3 = new Talon(2);
+  public static Victor d4 = new Victor(3);
+  public static SpeedControllerGroup left;
+  public static SpeedControllerGroup right;
   public static CANEncoder leftEncoder;
   public static CANEncoder rightEncoder;
   public static Gyro gyro;
@@ -58,21 +68,28 @@ public class Robot extends TimedRobot{
   public void robotInit() {
      m_chooser.setDefaultOption(kDefaultAuto, new CycleSprintTest());
      SmartDashboard.putData("Auto choices", m_chooser);
-      
-    // //only use brushless mode with can spark max, bad if not 
-    // //left
+    //SparkMax  
+    //only use brushless mode with can spark max, bad if not 
+    //left
     // d1 = new CANSparkMax(1,MotorType.kBrushless);
     // d2 = new CANSparkMax(2,MotorType.kBrushless);
     // leftEncoder = d1.getEncoder();
     // System.out.println("Left CPR: " + leftEncoder.getCPR());
-    // //right
+    //right
+    //SparkMax
     // d3 = new CANSparkMax(3,MotorType.kBrushless);
     // d4 = new CANSparkMax(4,MotorType.kBrushless);
     // rightEncoder = d3.getEncoder();
     // System.out.println("Left CPR: " + rightEncoder.getCPR());
-    sparks = new SparkMaxConfig(sparkArr,false);
+    //sparks = new SparkMaxConfig(sparkArr,false);
     // d2.follow(d1);
     // d4.follow(d3);
+
+    // Talon/Victors
+    left = new SpeedControllerGroup(d1, d2);
+    right = new SpeedControllerGroup(d3, d4);
+    right.setInverted(true);
+
     joy = new Joystick(0);
     fwd = new JoystickAxis(joy, 1, true, 1);
     trn = new JoystickAxis(joy, 4, .55);
@@ -85,8 +102,8 @@ public class Robot extends TimedRobot{
   public static void drive(double forward, double turn){
     double angleP = gyro.getAngle() * .01;
     
-    d1.set(forward+turn);
-    d3.set(forward-turn);
+    left.set(forward+turn);
+    right.set(forward - turn); 
   }
 
   /**
@@ -99,12 +116,12 @@ public class Robot extends TimedRobot{
    */
   @Override
   public void robotPeriodic() {
-    distance.getLeftDistance();
-    distance.getLeftRate();
-    distance.getRightDistance();
-    distance.getRightRate();
-    SmartDashboard.putNumber("PDP current", pdp.getTotalCurrent());
-    SmartDashboard.putNumber("Heading", gyro.getAngle());
+    // // distance.getLeftDistance();
+    // // distance.getLeftRate();
+    // // distance.getRightDistance();
+    // // distance.getRightRate();
+    // SmartDashboard.putNumber("PDP current", pdp.getTotalCurrent());
+    // SmartDashboard.putNumber("Heading", gyro.getAngle());
   }
 
   /**
@@ -153,8 +170,8 @@ public class Robot extends TimedRobot{
   @Override
   public void teleopPeriodic() {
     running = true;
-   // drive(joy.getRawAxis(1),joy.getRawAxis(4));
-   sparks.velDrive(joy.getRawAxis(1), joy.getRawAxis(4), 5700);
+   drive(joy.getRawAxis(1),joy.getRawAxis(4));
+  // sparks.velDrive(joy.getRawAxis(1), joy.getRawAxis(4), 5700);
   }
 
   /**

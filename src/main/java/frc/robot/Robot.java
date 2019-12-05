@@ -34,14 +34,10 @@ import frc.robot.dynasty.SparkMaxConfig;
  * project.
  */
 public class Robot extends TimedRobot{
-  // public static CANSparkMax d1;
-  // public static CANSparkMax d2;
-  // public static CANSparkMax d3;
-  // public static CANSparkMax d4;
-  public static Talon d1 = new Talon(0);
-  public static Victor d2 = new Victor(1);
-  public static Talon d3 = new Talon(2);
-  public static Victor d4 = new Victor(3);
+  public static CANSparkMax d1;
+  public static CANSparkMax d2;
+  public static CANSparkMax d3;
+  public static CANSparkMax d4;
   public static SpeedControllerGroup left;
   public static SpeedControllerGroup right;
   public static CANEncoder leftEncoder;
@@ -73,17 +69,21 @@ public class Robot extends TimedRobot{
     //left
     // d1 = new CANSparkMax(1,MotorType.kBrushless);
     // d2 = new CANSparkMax(2,MotorType.kBrushless);
+    d1 = new CANSparkMax(1,MotorType.kBrushed);
+    d2 = new CANSparkMax(2,MotorType.kBrushed);
     // leftEncoder = d1.getEncoder();
     // System.out.println("Left CPR: " + leftEncoder.getCPR());
     //right
     //SparkMax
     // d3 = new CANSparkMax(3,MotorType.kBrushless);
     // d4 = new CANSparkMax(4,MotorType.kBrushless);
+    d3 = new CANSparkMax(3,MotorType.kBrushed);
+    d4 = new CANSparkMax(4,MotorType.kBrushed);
     // rightEncoder = d3.getEncoder();
     // System.out.println("Left CPR: " + rightEncoder.getCPR());
     //sparks = new SparkMaxConfig(sparkArr,false);
-    // d2.follow(d1);
-    // d4.follow(d3);
+    d2.follow(d1);
+    d4.follow(d3);
 
     // Talon/Victors
     left = new SpeedControllerGroup(d1, d2);

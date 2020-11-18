@@ -79,7 +79,7 @@ public class Robot extends TimedRobot{
     // d4 = new CANSparkMax(4,MotorType.kBrushless);
     d3 = new CANSparkMax(3,MotorType.kBrushed);
     d4 = new CANSparkMax(4,MotorType.kBrushed);
-    // rightEncoder = d3.getEncoder();
+    rightEncoder = d3.getEncoder();
     // System.out.println("Left CPR: " + rightEncoder.getCPR());
     //sparks = new SparkMaxConfig(sparkArr,false);
     d2.follow(d1);
